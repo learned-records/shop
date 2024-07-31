@@ -3,9 +3,11 @@ package io.sparta.shop.controller;
 import io.sparta.shop.dto.ProductMypriceRequestDto;
 import io.sparta.shop.dto.ProductRequestDto;
 import io.sparta.shop.dto.ProductResponseDto;
+import io.sparta.shop.security.UserDetailsImpl;
 import io.sparta.shop.service.ProductService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +25,11 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping(PRODUCTS_BASE_URI)
-    public ProductResponseDto createProduct(@RequestBody ProductRequestDto productRequestDto) {
-        return productService.createProduct(productRequestDto);
+    public ProductResponseDto createProduct(
+        @RequestBody ProductRequestDto productRequestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        return productService.createProduct(productRequestDto, userDetails.getUser());
     }
 
     @PutMapping(SPECIFIC_PRODUCTS_URI_FORMAT)
@@ -33,7 +38,12 @@ public class ProductController {
     }
 
     @GetMapping(PRODUCTS_BASE_URI)
-    public List<ProductResponseDto> getProducts() {
-        return productService.getProducts();
+    public List<ProductResponseDto> getProducts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return productService.getProducts(userDetails.getUser());
+    }
+
+    @GetMapping("/admin/products")
+    public List<ProductResponseDto> getAllProducts() {
+        return productService.getAllProducts();
     }
 }

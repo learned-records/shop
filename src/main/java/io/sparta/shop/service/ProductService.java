@@ -4,6 +4,7 @@ import io.sparta.shop.dto.ProductMypriceRequestDto;
 import io.sparta.shop.dto.ProductRequestDto;
 import io.sparta.shop.dto.ProductResponseDto;
 import io.sparta.shop.entity.Product;
+import io.sparta.shop.entity.User;
 import io.sparta.shop.naver.dto.ItemDto;
 import io.sparta.shop.repository.ProductRepository;
 import java.util.List;
@@ -18,8 +19,8 @@ public class ProductService {
 
     public static final int MIN_MY_PRICE = 100;
 
-    public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
-        Product product = productRepository.save(new Product(productRequestDto));
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto, User user) {
+        Product product = productRepository.save(new Product(productRequestDto, user));
         return new ProductResponseDto(product);
     }
 
@@ -35,8 +36,8 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    public List<ProductResponseDto> getProducts() {
-        List<Product> products = productRepository.findAll();
+    public List<ProductResponseDto> getProducts(User user) {
+        List<Product> products = productRepository.findAllByUser(user);
 
         return products.stream()
             .map(ProductResponseDto::new)
@@ -50,5 +51,13 @@ public class ProductService {
         );
 
         product.updateByItemDto(itemDto);
+    }
+
+    public List<ProductResponseDto> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+            .map(ProductResponseDto::new)
+            .toList();
     }
 }
