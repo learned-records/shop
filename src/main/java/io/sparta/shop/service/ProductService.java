@@ -5,6 +5,7 @@ import io.sparta.shop.dto.ProductRequestDto;
 import io.sparta.shop.dto.ProductResponseDto;
 import io.sparta.shop.entity.Product;
 import io.sparta.shop.repository.ProductRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,5 +32,13 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(() -> new NullPointerException("해당 상품을 찾을 수 없습니다."));
         product.update(requestDto);
         return new ProductResponseDto(product);
+    }
+
+    public List<ProductResponseDto> getProducts() {
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+            .map(ProductResponseDto::new)
+            .toList();
     }
 }
