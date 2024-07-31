@@ -8,7 +8,6 @@ import io.sparta.shop.entity.User;
 import io.sparta.shop.entity.UserRoleEunm;
 import io.sparta.shop.naver.dto.ItemDto;
 import io.sparta.shop.repository.ProductRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +41,9 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    public Page<ProductResponseDto> getProducts(User user,
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> getProducts(
+        User user,
         int page,
         int size,
         String sortBy,
