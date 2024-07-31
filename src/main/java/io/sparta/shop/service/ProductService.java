@@ -5,10 +5,16 @@ import io.sparta.shop.dto.ProductRequestDto;
 import io.sparta.shop.dto.ProductResponseDto;
 import io.sparta.shop.entity.Product;
 import io.sparta.shop.entity.User;
+import io.sparta.shop.entity.UserRoleEunm;
 import io.sparta.shop.naver.dto.ItemDto;
 import io.sparta.shop.repository.ProductRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,12 +42,27 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    public List<ProductResponseDto> getProducts(User user) {
-        List<Product> products = productRepository.findAllByUser(user);
+    public Page<ProductResponseDto> getProducts(User user,
+        int page,
+        int size,
+        String sortBy,
+        boolean isAsc
+    ) {
+        Sort.Direction direction = isAsc ? Direction.ASC : Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        return products.stream()
-            .map(ProductResponseDto::new)
-            .toList();
+        UserRoleEunm userRoleEunm = user.getRole();
+
+        Page<Product> products;
+
+        if (userRoleEunm == UserRoleEunm.USER) {
+            products = productRepository.findAllByUser(user, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
+
+        return products.map(ProductResponseDto::new);
     }
 
     @Transactional
@@ -51,13 +72,5 @@ public class ProductService {
         );
 
         product.updateByItemDto(itemDto);
-    }
-
-    public List<ProductResponseDto> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-
-        return products.stream()
-            .map(ProductResponseDto::new)
-            .toList();
     }
 }
