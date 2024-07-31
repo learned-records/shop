@@ -4,6 +4,7 @@ import io.sparta.shop.dto.ProductMypriceRequestDto;
 import io.sparta.shop.dto.ProductRequestDto;
 import io.sparta.shop.dto.ProductResponseDto;
 import io.sparta.shop.entity.Product;
+import io.sparta.shop.naver.dto.ItemDto;
 import io.sparta.shop.repository.ProductRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,14 @@ public class ProductService {
         return products.stream()
             .map(ProductResponseDto::new)
             .toList();
+    }
+
+    @Transactional
+    public void updateBySearch(Long id, ItemDto itemDto) {
+        Product product = productRepository.findById(id).orElseThrow(() ->
+            new NullPointerException("해당 상품은 존재하지 않습니다.")
+        );
+
+        product.updateByItemDto(itemDto);
     }
 }
